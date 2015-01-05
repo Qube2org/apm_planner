@@ -9,6 +9,8 @@
 const float QGCMAVLinkInspector::updateHzLowpass = 0.2f;
 const unsigned int QGCMAVLinkInspector::updateInterval = 1000U;
 
+#include <cstring>
+
 QGCMAVLinkInspector::QGCMAVLinkInspector(MAVLinkProtocol* protocol, QWidget *parent) :
     QWidget(parent),
     _protocol(protocol),
@@ -296,12 +298,12 @@ void QGCMAVLinkInspector::refreshView()
     {
         const char* msgname = messageInfo[i].name;
 
-        size_t namelen = strnlen(msgname, 5);
-
-        if (namelen < 3) {
-            continue;
+        //Emulate the behavior of strnlen(msgname,5), since strnlen doesn't exist on mingw.
+        if (msgname[4] != '\0' && msgname[3] != '\0' && msgname[2] != '\0')
+        {
+            return;
         }
-
+\
         if (!strcmp(msgname, "EMPTY")) {
             continue;
         }
